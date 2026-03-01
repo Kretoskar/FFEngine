@@ -27,19 +27,48 @@ namespace FFVk
 
                 objects << callbackData->pObjects[i].objectHandle;
             }
-        
-            LOG_ERROR(
-                "\nVULKAN %s\n"
-                "Type: %s\n"
-                "Message:\n%s\n"
-                "Objects: %s\n",
-            
-                GetDebugSeverityStr(severity),
-                GetDebugType(type),
-                callbackData->pMessage,
-                objects.str().c_str())
 
-            return VK_FALSE;
+        	switch (severity)
+	        {
+	        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+        		LOG_WARNING(
+					   "\nVULKAN %s\n"
+					   "Type: %s\n"
+					   "Message:\n%s\n"
+					   "Objects: %s\n",
+            		
+					   GetDebugSeverityStr(severity),
+					   GetDebugType(type),
+					   callbackData->pMessage,
+					   objects.str().c_str())
+				break;
+	        case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+        		LOG_ERROR(
+					   "\nVULKAN %s\n"
+					   "Type: %s\n"
+					   "Message:\n%s\n"
+					   "Objects: %s\n",
+            		
+					   GetDebugSeverityStr(severity),
+					   GetDebugType(type),
+					   callbackData->pMessage,
+					   objects.str().c_str())
+		        break;
+	        default:
+        		LOG_MESSAGE(
+					   "\nVULKAN %s\n"
+					   "Type: %s\n"
+					   "Message:\n%s\n"
+					   "Objects: %s\n",
+            		
+					   GetDebugSeverityStr(severity),
+					   GetDebugType(type),
+					   callbackData->pMessage,
+					   objects.str().c_str())
+				break;
+	        }
+
+        	return VK_FALSE;
         }
     }
     
@@ -330,6 +359,27 @@ namespace FFVk
     	}
     }
 
+    void VulkanCore::CreateCommandBufferPool()
+    {
+    	VkCommandPoolCreateInfo commandPoolCreateInfo =
+    	{
+    		.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+    		.pNext = nullptr,
+    		.flags = 0,
+    		.queueFamilyIndex = _queueFamily,
+    	};
+
+    	VK_CALL_AND_CHECK
+    	(
+    		vkCreateCommandPool,
+    		"Failed to create command pool",
+    		_device,
+    		&commandPoolCreateInfo,
+    		nullptr,
+    		&_commandBufferPool
+    	)
+    }
+
     VulkanCore::VulkanCore(const char* appName, GLFWwindow* window)
     {
         CreateInstance(appName);
@@ -339,10 +389,13 @@ namespace FFVk
         _queueFamily = _physicalDevices.SelectDevice(VK_QUEUE_GRAPHICS_BIT, true);
     	CreateDevice();
     	CreateSwapChain();
+    	CreateCommandBufferPool();
     }
 
     VulkanCore::~VulkanCore()
     {
+    	vkDestroyCommandPool(_device, _commandBufferPool, nullptr);
+    	
 		for (u16 i = 0; i < _imageViews.size(); ++i)
 		{
 			vkDestroyImageView(_device, _imageViews[i], nullptr);
@@ -365,7 +418,38 @@ namespace FFVk
             _instance,
             _instance, _debugMessenger, nullptr
         )
-        
+    	
         vkDestroyInstance(_instance, nullptr);
+    }
+
+    i32 VulkanCore::GetNumImages()
+    {
+    	return _images.size();
+    }
+
+    void VulkanCore::CreateCommandBuffers(u32 num, VkCommandBuffer* outCommandBuffers)
+    {
+    	VkCommandBufferAllocateInfo allocInfo =
+    	{
+    		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+    		.pNext = nullptr,
+    		.commandPool = _commandBufferPool,
+    		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+    		.commandBufferCount = num
+    	};
+
+    	VK_CALL_AND_CHECK
+    	(
+    		vkAllocateCommandBuffers,
+    		"Failed to allocate command buffers",
+    		_device,
+    		&allocInfo,
+    		outCommandBuffers
+    	)
+    }
+
+    void VulkanCore::FreeCommandBuffers(const std::vector<VkCommandBuffer>& commandBuffers)
+    {
+    	vkFreeCommandBuffers(_device, _commandBufferPool, commandBuffers.size(), commandBuffers.data());
     }
 }

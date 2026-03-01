@@ -13,6 +13,10 @@ namespace FFVk
         VulkanCore(const char* appName, GLFWwindow* window);
         ~VulkanCore();
         
+        i32 GetNumImages();
+        void CreateCommandBuffers(u32 num, VkCommandBuffer* outCommandBuffers);
+        void FreeCommandBuffers(const std::vector<VkCommandBuffer>& commandBuffers);
+
     private:
         void CreateInstance(const char* appName);
         void CreateDebugCallback();
@@ -24,6 +28,7 @@ namespace FFVk
         VkImageView CreateImageView(VkDevice device, VkImage image, VkFormat format,
             VkImageAspectFlags aspectFlags, VkImageViewType imageViewType, u16 layerCount, u16 mipLevel);
         void CreateSwapChain();
+        void CreateCommandBufferPool();
         
         VkInstance _instance = VK_NULL_HANDLE;
         VkDebugUtilsMessengerEXT _debugMessenger = VK_NULL_HANDLE;
@@ -34,5 +39,6 @@ namespace FFVk
         VkSwapchainKHR _swapChain = VK_NULL_HANDLE;
         std::vector<VkImage> _images;
         std::vector<VkImageView> _imageViews;
+        VkCommandPool _commandBufferPool;
     };
 }
