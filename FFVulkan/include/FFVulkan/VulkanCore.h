@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "VulkanPhysicalDevice.h"
+#include "VulkanQueue.h"
 #include "vulkan/vulkan_core.h"
 
 struct GLFWwindow;
@@ -17,6 +18,7 @@ namespace FFVk
         void CreateCommandBuffers(u32 num, VkCommandBuffer* outCommandBuffers);
         void FreeCommandBuffers(const std::vector<VkCommandBuffer>& commandBuffers);
         const VkImage& GetImage(u32 idx) const;
+        VulkanQueue* GetQueue() { return &_queue; }
         
         void Cmd_ClearColorImage(
             VkCommandBuffer                             commandBuffer,
@@ -25,12 +27,7 @@ namespace FFVk
             const VkClearColorValue*                    color,
             uint32_t                                    rangeCount,
             const VkImageSubresourceRange*              ranges);
-
-        // "custom" because vulkan already defines a macro for CreateSemaphore
-        static VkSemaphore CreateSemaphoreCustom(VkDevice Device);
-        static u32 AcquireNextImage(VkDevice Device, VkSwapchainKHR Swapchain, VkSemaphore Semaphore);
-        static void SubmitQueueAsync(VkQueue Queue, u32 SubmitCount, const VkSubmitInfo* Submits, VkFence Fence);
-
+        
     private:
         void CmdBegin(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags);
         void CmdEnd(VkCommandBuffer commandBuffer);
@@ -56,5 +53,6 @@ namespace FFVk
         std::vector<VkImage> _images;
         std::vector<VkImageView> _imageViews;
         VkCommandPool _commandBufferPool;
+        VulkanQueue _queue;
     };
 }

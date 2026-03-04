@@ -20,6 +20,8 @@ namespace FFE
             FF::Logger::GetInstance().Stop();   
         }
 
+        void Render();
+        
     private:
         VulkanRenderer _vulkanRenderer;
     };

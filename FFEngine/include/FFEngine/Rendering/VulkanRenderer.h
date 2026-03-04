@@ -12,9 +12,11 @@ namespace FFE
             : _vulkanCore(appName, window)
         {
             _numImages = _vulkanCore.GetNumImages();
+
+            _vulkanQueue = _vulkanCore.GetQueue();
+            
             _cmdBuffers.resize(_numImages);
             _vulkanCore.CreateCommandBuffers(_numImages, _cmdBuffers.data());
-
             RecordCommandBuffers();
         }
 
@@ -31,5 +33,7 @@ namespace FFE
         FFVk::VulkanCore _vulkanCore;
         i32 _numImages = 0;
         std::vector<VkCommandBuffer> _cmdBuffers;
+
+        FFVk::VulkanQueue* _vulkanQueue = nullptr;
     };
 }

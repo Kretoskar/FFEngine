@@ -62,6 +62,7 @@ int main(int argc, char* argv[])
     
     while (!glfwWindowShouldClose(window))
     {
+        engine.Render();
         glfwPollEvents();
     }
 

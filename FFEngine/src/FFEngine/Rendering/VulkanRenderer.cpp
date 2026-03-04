@@ -4,7 +4,9 @@ using namespace FFE;
 
 void VulkanRenderer::Render()
 {
-    
+    u32 imageIndex = _vulkanQueue->AcquireNextImage();
+    _vulkanQueue->SubmitAsync(_cmdBuffers[imageIndex]);
+    _vulkanQueue->Present(imageIndex);
 }
 
 void VulkanRenderer::RecordCommandBuffers()

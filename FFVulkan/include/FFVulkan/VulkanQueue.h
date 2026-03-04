@@ -25,6 +25,7 @@ namespace FFVk
         void WaitIdle();
 
     private:
+        VkSemaphore CreateSemaphoreFF(VkDevice Device);
         void CreateSemaphores();
 
         VkDevice _device = VK_NULL_HANDLE;
