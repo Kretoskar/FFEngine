@@ -469,18 +469,8 @@ namespace FFVk
 		ASSERT(idx < _images.size(), "Invalid image index")
     	return _images[idx]; 
     }
-
-    void VulkanCore::Cmd_ClearColorImage(VkCommandBuffer commandBuffer, VkImage image, VkImageLayout imageLayout,
-	    const VkClearColorValue* color, uint32_t rangeCount, const VkImageSubresourceRange* ranges)
-    {
-    	CmdBegin(commandBuffer, 0);
-
-		vkCmdClearColorImage(commandBuffer, image, imageLayout, color, rangeCount, ranges);
-    	
-    	CmdEnd(commandBuffer);
-    }
 	
-    void VulkanCore::CmdBegin(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags)
+    void VulkanCore::BeginCommandBuffer(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags)
     {
     	VkCommandBufferBeginInfo beginInfo =
     	{
@@ -499,7 +489,7 @@ namespace FFVk
     	)
     }
 
-    void VulkanCore::CmdEnd(VkCommandBuffer commandBuffer)
+    void VulkanCore::EndCommandBuffer(VkCommandBuffer commandBuffer)
     {
     	VK_CALL_AND_CHECK
     	(

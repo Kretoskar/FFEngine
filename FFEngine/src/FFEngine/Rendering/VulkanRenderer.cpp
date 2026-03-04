@@ -51,12 +51,62 @@ void VulkanRenderer::RecordCommandBuffers()
 
     for (u32 i = 0; i < _cmdBuffers.size(); ++i)
     {
-        _vulkanCore.Cmd_ClearColorImage(
+        VkImageMemoryBarrier presentToClearBarrier =
+        {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .pNext = nullptr,
+            .srcAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+            .dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = _vulkanCore.GetImage(i),
+            .subresourceRange = imageRange,
+        };
+
+        VkImageMemoryBarrier clearToPresentBarrier =
+        {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
+            .pNext = nullptr,
+            .srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT,
+            .dstAccessMask = VK_ACCESS_MEMORY_READ_BIT,
+            .oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            .newLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+            .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
+            .image = _vulkanCore.GetImage(i),
+            .subresourceRange = imageRange,
+        };
+        
+        FFVk::VulkanCore::BeginCommandBuffer(
+            _cmdBuffers[i],
+            VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT);
+
+        vkCmdPipelineBarrier(
+            _cmdBuffers[i],
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            0,
+            0, nullptr,
+            0, nullptr,
+            1, &presentToClearBarrier);
+        
+        vkCmdClearColorImage(
             _cmdBuffers[i],
             _vulkanCore.GetImage(i),
-            VK_IMAGE_LAYOUT_GENERAL,
-            &clearColor,
-            /* number of elements in imageRange */ 1,
-            &imageRange);
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            &clearColor, 1, &imageRange);
+
+        vkCmdPipelineBarrier(
+            _cmdBuffers[i],
+            VK_PIPELINE_STAGE_TRANSFER_BIT,
+            VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,
+            0,
+            0, nullptr,
+            0, nullptr,
+            1, &clearToPresentBarrier);
+        
+        FFVk::VulkanCore::EndCommandBuffer(_cmdBuffers[i]);
     }
 }

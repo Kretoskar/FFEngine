@@ -23,18 +23,11 @@ namespace FFVk
         void FreeCommandBuffers(const std::vector<VkCommandBuffer>& commandBuffers);
         const VkImage& GetImage(u32 idx) const;
         VulkanQueue* GetQueue() { return &_queue; }
-        
-        void Cmd_ClearColorImage(
-            VkCommandBuffer                             commandBuffer,
-            VkImage                                     image,
-            VkImageLayout                               imageLayout,
-            const VkClearColorValue*                    color,
-            uint32_t                                    rangeCount,
-            const VkImageSubresourceRange*              ranges);
+
+        static void BeginCommandBuffer(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags);
+        static void EndCommandBuffer(VkCommandBuffer commandBuffer);
         
     private:
-        void CmdBegin(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags);
-        void CmdEnd(VkCommandBuffer commandBuffer);
         void CreateInstance(const char* appName);
         void CreateDebugCallback();
         void CreateSurface(GLFWwindow* window);
