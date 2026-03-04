@@ -3,8 +3,6 @@
 
 #include "FFCore/Core/HString.h"
 
-
-
 namespace FFE
 {
     class Window
@@ -18,9 +16,7 @@ namespace FFE
         };
         
         bool Init(const InitData& initData);
-
-        
-        
+    
     private:
         FF::HString _name;
         u32 _currentWidth{};

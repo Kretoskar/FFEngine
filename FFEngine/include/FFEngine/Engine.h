@@ -11,17 +11,10 @@ namespace FFE
     class Engine
     {
     public:
-        Engine()
-        {
-            FF::Logger::GetInstance().Start();
-        }
-        ~Engine()
-        {
-            FF::Logger::GetInstance().Stop();   
-        }
-
-        Window& CreateWindowFF(const Window::InitData& initData);
+        void Init();
+        Window& MakeWindow(const Window::InitData& initData);
         void Update();
+        void Cleanup();
         
     private:
         // TODO: when removing windows will be possible, need to change the container or keep ID

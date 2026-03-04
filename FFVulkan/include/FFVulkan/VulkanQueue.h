@@ -11,9 +11,6 @@ namespace FFVk
     class VulkanQueue
     {
     public:
-        VulkanQueue() = default;
-        ~VulkanQueue() = default;
-
         void Init(VkDevice Device, VkSwapchainKHR SwapChain, u32 QueueFamily, u32 QueueIndex);
         void Destroy();
         

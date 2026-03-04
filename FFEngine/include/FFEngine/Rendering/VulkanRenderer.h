@@ -9,17 +9,8 @@ namespace FFE
     class VulkanRenderer
     {
     public:
-        VulkanRenderer(){}
-
-        ~VulkanRenderer()
-        {
-            if (_wasInit)
-            {
-                _vulkanCore.FreeCommandBuffers(_cmdBuffers);
-            }
-        }
-
         void Init(FF::HString appName, GLFWwindow* window);
+        void Cleanup();
         void Render();
         
     private:

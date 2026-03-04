@@ -1,9 +1,13 @@
 ﻿#include "FFEngine/Window.h"
 
+#include "FFCore/Memory/AllocTracker.h"
+
 using namespace FFE;
 
 bool Window::Init(const InitData& initData)
 {
+    FF_MEMORY_SCOPE(Core)
+    
     ASSERT(glfwInit(), "Failed to initialize GLFW")
     ASSERT(glfwVulkanSupported(), "GLFW does not support Vulkan")
 

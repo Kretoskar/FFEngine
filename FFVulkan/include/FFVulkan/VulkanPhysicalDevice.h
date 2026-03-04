@@ -23,10 +23,6 @@ namespace FFVk
     class VulkanPhysicalDevices
     {
     public:
-        VulkanPhysicalDevices() = default;
-        ~VulkanPhysicalDevices() = default;
-
-        // TODO: Why not in ctor
         void Init(const VkInstance& vkInstance, const VkSurfaceKHR& surface);
         u32 SelectDevice(VkQueueFlags reqQueueType, bool supportsPresent);
         const PhysicalDevice& SelectedDevice() const;

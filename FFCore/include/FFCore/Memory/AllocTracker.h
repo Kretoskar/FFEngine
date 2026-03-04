@@ -8,6 +8,12 @@
 #include "FFCore/Core/Logger.h"
 #include "FFCore/Core/Types.h"
 
+#define FF_CONCAT_IMPL(x, y) x##y
+#define FF_CONCAT(x, y) FF_CONCAT_IMPL(x, y)
+
+#define FF_MEMORY_SCOPE(tag) \
+FF::Memory::MemoryTagScope FF_CONCAT(_ffMemoryScope_, __COUNTER__)(FF::Memory::MemoryTag::tag);
+
 namespace FF::Memory
 {
     enum class MemoryTag : u32

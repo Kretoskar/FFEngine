@@ -6,6 +6,7 @@
 
 #include "FFCore/Core/Types.h"
 #include "VulkanUtils.h"
+#include "FFCore/Memory/AllocTracker.h"
 
 namespace FFVk
 {
@@ -380,43 +381,10 @@ namespace FFVk
     	)
     }
 
-    VulkanCore::~VulkanCore()
-    {
-		if (!_wasInit)
-		{
-			return;
-		}
-    	
-    	vkDestroyCommandPool(_device, _commandBufferPool, nullptr);
-    	
-		for (u16 i = 0; i < _imageViews.size(); ++i)
-		{
-			vkDestroyImageView(_device, _imageViews[i], nullptr);
-		}
-
-    	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
-    	
-		vkDestroyDevice(_device, nullptr);
-    	
-        VK_FIND_AND_CALL
-        (
-            PFN_vkDestroySurfaceKHR,
-            _instance,
-            _instance, _surface, nullptr
-        )
-
-        VK_FIND_AND_CALL
-        (
-            PFN_vkDestroyDebugUtilsMessengerEXT,
-            _instance,
-            _instance, _debugMessenger, nullptr
-        )
-    	
-        vkDestroyInstance(_instance, nullptr);
-    }
-
     void VulkanCore::Init(FF::HString appName, GLFWwindow* window)
     {
+    	FF_MEMORY_SCOPE(Rendering)
+    	
     	CreateInstance(appName.Get());
     	CreateDebugCallback();
     	CreateSurface(window);
@@ -428,6 +396,41 @@ namespace FFVk
     	_queue.Init(_device, _swapChain, _queueFamily, 0);
 
     	_wasInit = true;
+    }
+
+    void VulkanCore::Cleanup()
+    {
+    	if (!_wasInit)
+    	{
+    		return;
+    	}
+    	
+    	vkDestroyCommandPool(_device, _commandBufferPool, nullptr);
+    	
+    	for (u16 i = 0; i < _imageViews.size(); ++i)
+    	{
+    		vkDestroyImageView(_device, _imageViews[i], nullptr);
+    	}
+
+    	vkDestroySwapchainKHR(_device, _swapChain, nullptr);
+    	
+    	vkDestroyDevice(_device, nullptr);
+    	
+    	VK_FIND_AND_CALL
+		(
+			PFN_vkDestroySurfaceKHR,
+			_instance,
+			_instance, _surface, nullptr
+		)
+
+		VK_FIND_AND_CALL
+		(
+			PFN_vkDestroyDebugUtilsMessengerEXT,
+			_instance,
+			_instance, _debugMessenger, nullptr
+		)
+    	
+		vkDestroyInstance(_instance, nullptr);
     }
 
     i32 VulkanCore::GetNumImages()

@@ -32,6 +32,16 @@ void FFE::Engine::Update()
     glfwTerminate();
 }
 
+void FFE::Engine::Cleanup()
+{
+    for (VulkanRenderer& renderer : _vulkanRenderers)
+    {
+        renderer.Cleanup();
+    }
+    
+    FF::Logger::GetInstance().Stop();
+}
+
 FFE::VulkanRenderer& FFE::Engine::CreateVulkanRenderer()
 {
     _vulkanRenderers.push_back(VulkanRenderer());
@@ -43,7 +53,12 @@ FFE::VulkanRenderer& FFE::Engine::GetVulkanRenderer(uint16_t idx)
     return _vulkanRenderers[idx];   
 }
 
-FFE::Window& FFE::Engine::CreateWindowFF(const Window::InitData& initData)
+void FFE::Engine::Init()
+{
+    FF::Logger::GetInstance().Start();
+}
+
+FFE::Window& FFE::Engine::MakeWindow(const Window::InitData& initData)
 {
     _windows.push_back(Window());
     Window& w = _windows.back();

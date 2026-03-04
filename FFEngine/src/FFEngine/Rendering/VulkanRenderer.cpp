@@ -1,9 +1,13 @@
 ﻿#include "FFEngine/Rendering/VulkanRenderer.h"
 
+#include "FFCore/Memory/AllocTracker.h"
+
 using namespace FFE;
 
 void VulkanRenderer::Init(FF::HString appName, GLFWwindow* window)
 {
+    FF_MEMORY_SCOPE(Rendering)
+    
     _vulkanCore.Init(appName, window);
     _numImages = _vulkanCore.GetNumImages();
 
@@ -14,6 +18,15 @@ void VulkanRenderer::Init(FF::HString appName, GLFWwindow* window)
     RecordCommandBuffers();
     
     _wasInit = true;
+}
+
+void VulkanRenderer::Cleanup()
+{
+    if (_wasInit)
+    {
+        _vulkanCore.FreeCommandBuffers(_cmdBuffers);
+        _vulkanCore.Cleanup();
+    }
 }
 
 void VulkanRenderer::Render()

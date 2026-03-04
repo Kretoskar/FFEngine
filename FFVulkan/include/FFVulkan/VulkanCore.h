@@ -12,10 +12,12 @@ namespace FFVk
     class VulkanCore
     {
     public:
-        VulkanCore(){}
-        ~VulkanCore();
+        VulkanCore() = default;
+        ~VulkanCore() = default;
 
         void Init(FF::HString appName, GLFWwindow* window);
+        void Cleanup();
+        
         i32 GetNumImages();
         void CreateCommandBuffers(u32 num, VkCommandBuffer* outCommandBuffers);
         void FreeCommandBuffers(const std::vector<VkCommandBuffer>& commandBuffers);
