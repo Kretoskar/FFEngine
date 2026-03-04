@@ -380,21 +380,13 @@ namespace FFVk
     	)
     }
 
-    VulkanCore::VulkanCore(const char* appName, GLFWwindow* window)
-    {
-        CreateInstance(appName);
-        CreateDebugCallback();
-        CreateSurface(window);
-        _physicalDevices.Init(_instance, _surface);
-        _queueFamily = _physicalDevices.SelectDevice(VK_QUEUE_GRAPHICS_BIT, true);
-    	CreateDevice();
-    	CreateSwapChain();
-    	CreateCommandBufferPool();
-    	_queue.Init(_device, _swapChain, _queueFamily, 0);
-    }
-
     VulkanCore::~VulkanCore()
     {
+		if (!_wasInit)
+		{
+			return;
+		}
+    	
     	vkDestroyCommandPool(_device, _commandBufferPool, nullptr);
     	
 		for (u16 i = 0; i < _imageViews.size(); ++i)
@@ -421,6 +413,21 @@ namespace FFVk
         )
     	
         vkDestroyInstance(_instance, nullptr);
+    }
+
+    void VulkanCore::Init(FF::HString appName, GLFWwindow* window)
+    {
+    	CreateInstance(appName.Get());
+    	CreateDebugCallback();
+    	CreateSurface(window);
+    	_physicalDevices.Init(_instance, _surface);
+    	_queueFamily = _physicalDevices.SelectDevice(VK_QUEUE_GRAPHICS_BIT, true);
+    	CreateDevice();
+    	CreateSwapChain();
+    	CreateCommandBufferPool();
+    	_queue.Init(_device, _swapChain, _queueFamily, 0);
+
+    	_wasInit = true;
     }
 
     i32 VulkanCore::GetNumImages()

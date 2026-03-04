@@ -2,6 +2,7 @@
 
 #include "VulkanPhysicalDevice.h"
 #include "VulkanQueue.h"
+#include "FFCore/Core/HString.h"
 #include "vulkan/vulkan_core.h"
 
 struct GLFWwindow;
@@ -11,9 +12,10 @@ namespace FFVk
     class VulkanCore
     {
     public:
-        VulkanCore(const char* appName, GLFWwindow* window);
+        VulkanCore(){}
         ~VulkanCore();
-        
+
+        void Init(FF::HString appName, GLFWwindow* window);
         i32 GetNumImages();
         void CreateCommandBuffers(u32 num, VkCommandBuffer* outCommandBuffers);
         void FreeCommandBuffers(const std::vector<VkCommandBuffer>& commandBuffers);
@@ -54,5 +56,6 @@ namespace FFVk
         std::vector<VkImageView> _imageViews;
         VkCommandPool _commandBufferPool;
         VulkanQueue _queue;
+        bool _wasInit = false;
     };
 }

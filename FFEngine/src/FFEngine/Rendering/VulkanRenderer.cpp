@@ -2,6 +2,20 @@
 
 using namespace FFE;
 
+void VulkanRenderer::Init(FF::HString appName, GLFWwindow* window)
+{
+    _vulkanCore.Init(appName, window);
+    _numImages = _vulkanCore.GetNumImages();
+
+    _vulkanQueue = _vulkanCore.GetQueue();
+            
+    _cmdBuffers.resize(_numImages);
+    _vulkanCore.CreateCommandBuffers(_numImages, _cmdBuffers.data());
+    RecordCommandBuffers();
+    
+    _wasInit = true;
+}
+
 void VulkanRenderer::Render()
 {
     u32 imageIndex = _vulkanQueue->AcquireNextImage();

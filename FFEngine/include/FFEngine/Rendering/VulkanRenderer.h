@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "FFCore/Core/HString.h"
 #include "FFVulkan/VulkanCore.h"
 
 struct GLFWwindow;
@@ -8,28 +9,23 @@ namespace FFE
     class VulkanRenderer
     {
     public:
-        VulkanRenderer(const char* appName, GLFWwindow* window)
-            : _vulkanCore(appName, window)
-        {
-            _numImages = _vulkanCore.GetNumImages();
-
-            _vulkanQueue = _vulkanCore.GetQueue();
-            
-            _cmdBuffers.resize(_numImages);
-            _vulkanCore.CreateCommandBuffers(_numImages, _cmdBuffers.data());
-            RecordCommandBuffers();
-        }
+        VulkanRenderer(){}
 
         ~VulkanRenderer()
         {
-            _vulkanCore.FreeCommandBuffers(_cmdBuffers);
+            if (_wasInit)
+            {
+                _vulkanCore.FreeCommandBuffers(_cmdBuffers);
+            }
         }
 
+        void Init(FF::HString appName, GLFWwindow* window);
         void Render();
         
     private:
         void RecordCommandBuffers();
-        
+
+        bool _wasInit = false;
         FFVk::VulkanCore _vulkanCore;
         i32 _numImages = 0;
         std::vector<VkCommandBuffer> _cmdBuffers;
