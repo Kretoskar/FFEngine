@@ -23,6 +23,9 @@ namespace FFVk
         void FreeCommandBuffers(const std::vector<VkCommandBuffer>& commandBuffers);
         const VkImage& GetImage(u32 idx) const;
         VulkanQueue* GetQueue() { return &_queue; }
+        VkRenderPass CreateSimpleRenderPass();
+        std::vector<VkFramebuffer> CreateFramebuffers(VkRenderPass renderPass);
+        VkDevice GetDevice() const;
 
         static void BeginCommandBuffer(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags);
         static void EndCommandBuffer(VkCommandBuffer commandBuffer);
@@ -51,6 +54,9 @@ namespace FFVk
         std::vector<VkImageView> _imageViews;
         VkCommandPool _commandBufferPool;
         VulkanQueue _queue;
+        VkSurfaceFormatKHR _swapchainSurfaceFormat;
+        std::vector<VkFramebuffer> _framebuffers;
+        
         bool _wasInit = false;
     };
 }

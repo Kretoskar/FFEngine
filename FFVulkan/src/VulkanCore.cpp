@@ -302,7 +302,7 @@ namespace FFVk
     	VkPresentModeKHR presentMode = ChoosePresentMode(presentModes);
 
 		// prefer BGRA 8-bit SRGB with SRGB nonlinear color space
-    	VkSurfaceFormatKHR surfaceFormat = ChooseSurfaceFormatAndColorSpace(_physicalDevices.SelectedDevice().SurfaceFormats);
+    	_swapchainSurfaceFormat = ChooseSurfaceFormatAndColorSpace(_physicalDevices.SelectedDevice().SurfaceFormats);
 
     	VkSwapchainCreateInfoKHR swapChainCreateInfo =
     	{
@@ -311,8 +311,8 @@ namespace FFVk
     		.flags = 0,
     		.surface = _surface,
     		.minImageCount = numImages,
-    		.imageFormat = surfaceFormat.format,
-    		.imageColorSpace = surfaceFormat.colorSpace,
+    		.imageFormat = _swapchainSurfaceFormat.format,
+    		.imageColorSpace = _swapchainSurfaceFormat.colorSpace,
     		.imageExtent = surfaceCapabilities.currentExtent,
     		.imageArrayLayers = 1,
     		.imageUsage = (VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT),
@@ -355,7 +355,7 @@ namespace FFVk
     		constexpr u16 layerCount = 1;
     		constexpr u16 mipLevels = 1;
     		
-    		_imageViews[i] = CreateImageView(_device, _images[i], surfaceFormat.format,
+    		_imageViews[i] = CreateImageView(_device, _images[i], _swapchainSurfaceFormat.format,
     			VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_VIEW_TYPE_2D, layerCount, mipLevels);
     	}
     }
@@ -469,7 +469,102 @@ namespace FFVk
 		ASSERT(idx < _images.size(), "Invalid image index")
     	return _images[idx]; 
     }
-	
+
+    VkRenderPass VulkanCore::CreateSimpleRenderPass()
+    {
+	    VkAttachmentDescription attachmentDescription =
+		{
+		    .flags = 0,
+	    	.format = _swapchainSurfaceFormat.format,
+	    	.samples = VK_SAMPLE_COUNT_1_BIT,
+	    	.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,	// clear the output image when it's loaded
+	    	.storeOp = VK_ATTACHMENT_STORE_OP_STORE,// and store it
+	    	.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+	    	.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+	    	.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+	    	.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+	    };
+    	
+    	VkAttachmentReference attachmentReference =
+    	{
+    		.attachment = 0,
+    		.layout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+    	};
+    	
+    	VkSubpassDescription subpassDescription =
+    	{
+    		.flags = 0,
+    		.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+    		.inputAttachmentCount = 0,
+    		.pInputAttachments = nullptr,
+    		.colorAttachmentCount = 1,	// output
+    		.pColorAttachments = &attachmentReference,
+    		.pResolveAttachments = nullptr,
+    		.pDepthStencilAttachment = nullptr,
+    		.preserveAttachmentCount = 0,
+    		.pPreserveAttachments = nullptr
+    	};
+    	
+    	VkRenderPassCreateInfo renderPassCreateInfo =
+    	{
+    		.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
+    		.pNext = nullptr,
+    		.flags = 0,
+    		.attachmentCount = 1,
+    		.pAttachments = &attachmentDescription,
+    		.subpassCount = 1,
+    		.pSubpasses = &subpassDescription,
+    		.dependencyCount = 0,
+    		.pDependencies = nullptr
+    	};
+    	
+    	VkRenderPass renderPass;
+    	VK_CALL_AND_CHECK(
+    		vkCreateRenderPass,
+    		"Failed to create render pass",
+    		_device,
+    		&renderPassCreateInfo, 
+    		nullptr, 
+    		&renderPass)
+    	
+    	return renderPass;
+    }
+
+    std::vector<VkFramebuffer> VulkanCore::CreateFramebuffers(VkRenderPass renderPass)
+    {
+    	_framebuffers.resize(_images.size());
+
+	    for (u32 i = 0; i < _images.size(); ++i)
+    	{
+		    constexpr i32 windowHeight = 720;
+		    constexpr i32 windowWidth = 1280;
+	    	
+		    VkFramebufferCreateInfo framebufferCreateInfo = {};
+    		framebufferCreateInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+    		framebufferCreateInfo.renderPass = renderPass;
+    		framebufferCreateInfo.attachmentCount = 1;
+    		framebufferCreateInfo.pAttachments = &_imageViews[i];
+    		framebufferCreateInfo.width = windowWidth;
+    		framebufferCreateInfo.height = windowHeight;
+    		framebufferCreateInfo.layers = 1;
+    		
+    		VK_CALL_AND_CHECK(
+    			vkCreateFramebuffer,
+    			"Failed to create framebuffer",
+    			_device,
+    			&framebufferCreateInfo,
+    			nullptr,
+    			&_framebuffers[i])
+    	}
+    	
+    	return _framebuffers;
+    }
+
+    VkDevice VulkanCore::GetDevice() const
+    {
+    	return _device;
+    }
+
     void VulkanCore::BeginCommandBuffer(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags)
     {
     	VkCommandBufferBeginInfo beginInfo =

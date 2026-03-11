@@ -22,5 +22,10 @@ namespace FFE
         std::vector<VkCommandBuffer> _cmdBuffers;
 
         FFVk::VulkanQueue* _vulkanQueue = nullptr;
+        
+        VkRenderPass _renderPass = VK_NULL_HANDLE;
+        std::vector<VkFramebuffer> _framebuffers;
+        u32 WindowHeight = 720;
+        u32 WindowWidth = 1280;
     };
 }

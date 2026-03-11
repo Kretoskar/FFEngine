@@ -45,7 +45,7 @@ void VulkanQueue::SubmitAsync(VkCommandBuffer CmbBuf)
 
     VkSubmitInfo submitInfo =
     {
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO, 
         .pNext = nullptr,
         .waitSemaphoreCount = 1,
         .pWaitSemaphores = &_presentCompleteSemaphore,
