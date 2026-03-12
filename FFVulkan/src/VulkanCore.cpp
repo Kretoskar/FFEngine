@@ -560,7 +560,7 @@ namespace FFVk
     	return _framebuffers;
     }
 
-    VkDevice VulkanCore::GetDevice() const
+    VkDevice& VulkanCore::GetDevice()
     {
     	return _device;
     }

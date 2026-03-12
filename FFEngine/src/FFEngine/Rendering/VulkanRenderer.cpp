@@ -1,6 +1,7 @@
 ﻿#include "FFEngine/Rendering/VulkanRenderer.h"
 
 #include "FFCore/Memory/AllocTracker.h"
+#include "FFVulkan/VulkanShader.h"
 
 using namespace FFE;
 
@@ -20,6 +21,9 @@ void VulkanRenderer::Init(FF::HString appName, GLFWwindow* window)
     _vulkanCore.CreateCommandBuffers(_numImages, _cmdBuffers.data());
     RecordCommandBuffers();
     
+    vertexShader = FFVk::CreateShaderModuleFromText(_vulkanCore.GetDevice(), "test.vert");
+    fragmentShader = FFVk::CreateShaderModuleFromText(_vulkanCore.GetDevice(), "test.frag");
+    
     _wasInit = true;
 }
 
@@ -29,6 +33,10 @@ void VulkanRenderer::Cleanup()
     {
         _vulkanCore.FreeCommandBuffers(_cmdBuffers);
         _vulkanCore.Cleanup();
+        
+        vkDestroyShaderModule(_vulkanCore.GetDevice(), vertexShader, nullptr);
+        vkDestroyShaderModule(_vulkanCore.GetDevice(), fragmentShader, nullptr);
+        
         vkDestroyRenderPass(_vulkanCore.GetDevice(), _renderPass, nullptr);
     }
 }

@@ -68,26 +68,28 @@ project "FFVulkan"
 		"%{prj.name}/include",
 		"FFCore/include",
 		"%{IncludeDir.VulkanSDK}",
-		"%{IncludeDir.GLFW}"
+		"%{IncludeDir.GLFW}",
+	}
+
+	libdirs
+	{
+		"%{LibraryDir.VulkanSDK}",
 	}
 
 	links
 	{
 		"FFCore",
-		"%{Library.Vulkan}"
-		
-		-- debug only
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRVd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Toolsd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Tools-diffd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Tools-optd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/OGLCompilerd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/glslangd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/OSDependentd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/GenericCodeGend.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/MachineIndependentd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/glslang-default-resource-limitsd.lib"
 	}
+	
+	links(VulkanLinks.Common)
+
+	filter "configurations:Debug"
+		links(VulkanLinks.Debug)
+	
+	filter "configurations:Release"
+		links(VulkanLinks.Release)
+		
+	filter {}
 	
 	dependson { "FFCore" }
 
@@ -96,7 +98,7 @@ project "FFVulkan"
 		
 	filter {}
 	
-		filter "configurations:Debug"
+	filter "configurations:Debug"
 		defines "FF_DEBUG"
 		runtime "Debug"
 		symbols "on"
@@ -133,20 +135,22 @@ project "FFEngine"
 	{
 		"FFCore",
 		"FFVulkan",
-		"%{Library.Vulkan}",
-		
-		-- debug only
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRVd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Toolsd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Tools-diffd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Tools-optd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/OGLCompilerd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/glslangd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/OSDependentd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/GenericCodeGend.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/MachineIndependentd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/glslang-default-resource-limitsd.lib"
 	}
+	
+	libdirs
+	{
+		"%{LibraryDir.VulkanSDK}",
+	}
+	
+	links(VulkanLinks.Common)
+
+	filter "configurations:Debug"
+		links(VulkanLinks.Debug)
+	
+	filter "configurations:Release"
+		links(VulkanLinks.Release)
+		
+	filter {}
 	
 	dependson { "FFCore", "FFVulkan" }
 
@@ -192,7 +196,7 @@ project "FFSandbox"
 	
 	libdirs
 	{
-		"%{Library.GLFW}"
+		"%{LibraryDir.GLFW}",
 	}
 
 
@@ -201,21 +205,23 @@ project "FFSandbox"
 		"FFCore",
 		"FFEngine",
 		"FFVulkan",
-		"%{Library.Vulkan}",
-		"glfw3"
-		
-		-- debug only
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRVd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Toolsd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Tools-diffd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/SPIRV-Tools-optd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/OGLCompilerd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/glslangd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/OSDependentd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/GenericCodeGend.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/MachineIndependentd.lib",
-		-- "../../VulkanSDK/1.4.335.0/Lib/glslang-default-resource-limitsd.lib"
+		"glfw3",
 	}
+	
+	libdirs
+	{
+		"%{LibraryDir.VulkanSDK}",
+	}
+	
+	links(VulkanLinks.Common)
+
+	filter "configurations:Debug"
+		links(VulkanLinks.Debug)
+	
+	filter "configurations:Release"
+		links(VulkanLinks.Release)
+		
+	filter {}
 	
 	filter "configurations:Debug"
 		defines "FF_DEBUG"

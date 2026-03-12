@@ -27,5 +27,8 @@ namespace FFE
         std::vector<VkFramebuffer> _framebuffers;
         u32 WindowHeight = 720;
         u32 WindowWidth = 1280;
+        
+        VkShaderModule vertexShader = VK_NULL_HANDLE;
+        VkShaderModule fragmentShader = VK_NULL_HANDLE;
     };
 }

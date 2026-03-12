@@ -25,7 +25,7 @@ namespace FFVk
         VulkanQueue* GetQueue() { return &_queue; }
         VkRenderPass CreateSimpleRenderPass();
         std::vector<VkFramebuffer> CreateFramebuffers(VkRenderPass renderPass);
-        VkDevice GetDevice() const;
+        VkDevice& GetDevice();
 
         static void BeginCommandBuffer(VkCommandBuffer commandBuffer, VkCommandBufferUsageFlags usageFlags);
         static void EndCommandBuffer(VkCommandBuffer commandBuffer);
