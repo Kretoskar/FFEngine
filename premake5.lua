@@ -13,7 +13,6 @@ workspace "FF"
 	filter { "configurations:Release" }
 		optimize "On"
 
-	-- Reset the filter for other settings
 	filter { }
 
 	outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
@@ -34,8 +33,7 @@ project "FFCore"
 	
 	includedirs
 	{
-		"%{prj.name}/include",
-		"%{IncludeDir.GLFW}"
+		"%{prj.name}/include"
 	}
 
 	
@@ -70,26 +68,6 @@ project "FFVulkan"
 		"%{IncludeDir.VulkanSDK}",
 		"%{IncludeDir.GLFW}",
 	}
-
-	libdirs
-	{
-		"%{LibraryDir.VulkanSDK}",
-	}
-
-	links
-	{
-		"FFCore",
-	}
-	
-	links(VulkanLinks.Common)
-
-	filter "configurations:Debug"
-		links(VulkanLinks.Debug)
-	
-	filter "configurations:Release"
-		links(VulkanLinks.Release)
-		
-	filter {}
 	
 	dependson { "FFCore" }
 
@@ -127,30 +105,8 @@ project "FFEngine"
 		"%{prj.name}/include",
 		"FFCore/include",
 		"FFVulkan/include",
-		"%{IncludeDir.VulkanSDK}",
 		"%{IncludeDir.GLFW}",
 	}
-
-	links
-	{
-		"FFCore",
-		"FFVulkan",
-	}
-	
-	libdirs
-	{
-		"%{LibraryDir.VulkanSDK}",
-	}
-	
-	links(VulkanLinks.Common)
-
-	filter "configurations:Debug"
-		links(VulkanLinks.Debug)
-	
-	filter "configurations:Release"
-		links(VulkanLinks.Release)
-		
-	filter {}
 	
 	dependson { "FFCore", "FFVulkan" }
 
@@ -159,7 +115,7 @@ project "FFEngine"
 		
 	filter {}
 	
-		filter "configurations:Debug"
+	filter "configurations:Debug"
 		defines "FF_DEBUG"
 		runtime "Debug"
 		symbols "on"
@@ -189,8 +145,6 @@ project "FFSandbox"
 		"FFVulkan/include",
 		"FFEngine/include",
 		"FFSandbox/include",
-		"%{IncludeDir.VulkanSDK}",
-		"%{IncludeDir.GLFW}"
 	}
 
 	
@@ -233,4 +187,4 @@ project "FFSandbox"
 		runtime "Release"
 		optimize "on"
 	
-	dependson { "FFCore", "FFEngine" }
+	dependson { "FFCore", "FFCore", "FFEngine" }

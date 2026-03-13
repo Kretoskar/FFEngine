@@ -1,6 +1,7 @@
 ﻿#include "FFEngine/Window.h"
-
 #include "FFCore/Memory/AllocTracker.h"
+
+#include <GLFW/glfw3.h>
 
 using namespace FFE;
 
@@ -9,7 +10,6 @@ bool Window::Init(const InitData& initData)
     FF_MEMORY_SCOPE(Core)
     
     ASSERT(glfwInit(), "Failed to initialize GLFW")
-    ASSERT(glfwVulkanSupported(), "GLFW does not support Vulkan")
 
     glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
@@ -33,5 +33,4 @@ bool Window::Init(const InitData& initData)
     _currentHeight = initData.Height;
     
     return true;
-   // glfwSetKeyCallback(window, GLFW_KeyCallback);
 }

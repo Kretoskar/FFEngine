@@ -1,7 +1,9 @@
 ﻿#pragma once
-#include <GLFW/glfw3.h>
+
 
 #include "FFCore/Core/HString.h"
+
+struct GLFWwindow;
 
 namespace FFE
 {
