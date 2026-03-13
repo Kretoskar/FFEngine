@@ -67,6 +67,7 @@ project "FFVulkan"
 		"FFCore/include",
 		"%{IncludeDir.VulkanSDK}",
 		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.glm}",
 	}
 	
 	dependson { "FFCore" }
@@ -106,6 +107,7 @@ project "FFEngine"
 		"FFCore/include",
 		"FFVulkan/include",
 		"%{IncludeDir.GLFW}",
+		"%{IncludeDir.glm}",
 	}
 	
 	dependson { "FFCore", "FFVulkan" }
@@ -145,6 +147,7 @@ project "FFSandbox"
 		"FFVulkan/include",
 		"FFEngine/include",
 		"FFSandbox/include",
+		"%{IncludeDir.glm}",
 	}
 
 	
