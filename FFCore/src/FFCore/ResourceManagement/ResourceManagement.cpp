@@ -12,22 +12,25 @@ ResourceManager::ResourceManager()
 ResourceManager::~ResourceManager()
 {
     Stop();
+    UnloadAll();
 }
 
 void ResourceManager::Start()
 {
-    _running = true;
-    _workerThread = std::thread([this]() 
+    if (_running)
     {
-        WorkerThread();
-    });
+        return;
+    }
+    
+    _running = true;
+    _workerThread = std::thread(&ResourceManager::WorkerThread, this);
 }
 
 void ResourceManager::Stop()
 {
     {
         std::lock_guard<std::mutex> lock(_queueMutex);
-        if (_running == false)
+        if (!_running)
         {
             return;
         }
@@ -42,9 +45,10 @@ void ResourceManager::Stop()
 
 void ResourceManager::WorkerThread()
 {
-    while (_running)
+    while (true)
     {
         std::function<void()> task;
+
         {
             std::unique_lock<std::mutex> lock(_queueMutex);
             _condition.wait(lock, [this]()
@@ -52,9 +56,9 @@ void ResourceManager::WorkerThread()
                 return !_taskQueue.empty() || !_running;
             });
 
-            if (!_running && _taskQueue.empty()) 
+            if (!_running && _taskQueue.empty())
             {
-                return;
+                break;
             }
 
             task = std::move(_taskQueue.front());
@@ -67,17 +71,19 @@ void ResourceManager::WorkerThread()
 
 void ResourceManager::UnloadAll()
 {
-    for (std::unordered_map<HString, std::shared_ptr<Resource>>& typeResources : _resources | std::views::values) 
+    std::lock_guard<std::mutex> lock(_queueMutex);
+
+    for (auto& typeResources : _resources | std::views::values)
     {
-        for (std::shared_ptr<Resource>& resource : typeResources | std::views::values) 
+        for (auto& resource : typeResources | std::views::values)
         {
-            if (resource && resource->IsLoaded()) 
+            if (resource && resource->IsLoaded())
             {
                 resource->Unload();
             }
         }
     }
-    
+
     _resources.clear();
     _refCounts.clear();
 }

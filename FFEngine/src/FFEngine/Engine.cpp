@@ -15,6 +15,7 @@ void FFE::Engine::Update()
 
 void FFE::Engine::Cleanup()
 {
+    ResourceManager.Stop();
     ResourceManager.UnloadAll();
     FF::Logger::GetInstance().Stop();
 }
