@@ -5,7 +5,7 @@
 
 void FFE::Engine::Update()
 {
-    while (!_windows.empty())
+    while (!_windows.empty() && !glfwWindowShouldClose(_windows[0].GetWindow()))
     {
         glfwPollEvents();
     }
@@ -15,7 +15,7 @@ void FFE::Engine::Update()
 
 void FFE::Engine::Cleanup()
 {
-
+    ResourceManager.UnloadAll();
     FF::Logger::GetInstance().Stop();
 }
 

@@ -4,6 +4,67 @@
 
 using namespace FF;
 
+ResourceManager::ResourceManager()
+{
+    Start();
+}
+
+ResourceManager::~ResourceManager()
+{
+    Stop();
+}
+
+void ResourceManager::Start()
+{
+    _running = true;
+    _workerThread = std::thread([this]() 
+    {
+        WorkerThread();
+    });
+}
+
+void ResourceManager::Stop()
+{
+    {
+        std::lock_guard<std::mutex> lock(_queueMutex);
+        if (_running == false)
+        {
+            return;
+        }
+        _running = false;
+    }
+    _condition.notify_one();
+    if (_workerThread.joinable()) 
+    {
+        _workerThread.join();
+    }
+}
+
+void ResourceManager::WorkerThread()
+{
+    while (_running)
+    {
+        std::function<void()> task;
+        {
+            std::unique_lock<std::mutex> lock(_queueMutex);
+            _condition.wait(lock, [this]()
+            {
+                return !_taskQueue.empty() || !_running;
+            });
+
+            if (!_running && _taskQueue.empty()) 
+            {
+                return;
+            }
+
+            task = std::move(_taskQueue.front());
+            _taskQueue.pop();
+        }
+
+        task();
+    }
+}
+
 void ResourceManager::UnloadAll()
 {
     for (std::unordered_map<HString, std::shared_ptr<Resource>>& typeResources : _resources | std::views::values) 

@@ -1,5 +1,7 @@
 ﻿#pragma once
 
+#include <functional>
+#include <queue>
 #include <typeindex>
 #include <unordered_map>
 
@@ -86,8 +88,14 @@ namespace FF
     class ResourceManager
     {
     public:
+        ResourceManager();
+        ~ResourceManager();
+        
         template<typename T>
         ResourceHandle<T> Load(HString resourceId);
+        
+        template<typename T>
+        void LoadAsync(const std::string& resourceId, bool keep, std::function<void(ResourceHandle<T>)> callback);
         
         template<typename T>
         T* GetResource(HString resourceId);
@@ -98,11 +106,15 @@ namespace FF
         template<typename T>
         void Release(HString resourceId);
         
+        void Start();
+        void Stop();
         void UnloadAll();
         
         static bool ReadTextFile(HString fileName, std::string& outFile);
         
     private:
+        void WorkerThread();
+        
         // Two-level storage system: organize by type first, then by unique identifier
         // This approach enables type-safe resource access while maintaining efficient lookup
         std::unordered_map<std::type_index,
@@ -118,6 +130,12 @@ namespace FF
         
         std::unordered_map<std::type_index,
                       std::unordered_map<HString, ResourceData>> _refCounts;
+        
+        std::thread _workerThread;
+        std::queue<std::function<void()>> _taskQueue;
+        std::mutex _queueMutex;
+        std::condition_variable _condition;
+        bool _running = false;
     };
     
     template <typename T>
@@ -175,6 +193,22 @@ namespace FF
         typeRefCounts[resourceId] = ResourceData{resource, 1};
 
         return ResourceHandle<T>(resourceId, this);
+    }
+    
+    template <typename T>
+    void ResourceManager::LoadAsync(const std::string& resourceId, bool keep, std::function<void(ResourceHandle<T>)> callback)
+    {
+        std::lock_guard<std::mutex> lock(_queueMutex);
+        _taskQueue.push([this, resourceId, callback, keep]() 
+        {
+            auto handle = Load<T>(resourceId);
+            callback(handle);
+            if (!keep)
+            {
+                Release<T>(resourceId);
+            }
+        });
+        _condition.notify_one();
     }
 
     template <typename T>

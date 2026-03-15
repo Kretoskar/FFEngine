@@ -3,16 +3,22 @@
 #include "FFCore/ResourceManagement/Resource_TextFile.h"
 #include "FFEngine/Engine.h"
 
+using namespace FF;
+
 int main(int argc, char* argv[])
 {
     FFE::Engine engine;
     engine.Init();
     
-    auto skibidi = engine.ResourceManager.Load<FF::Resource_TextFile>("skibidi");
-    if (skibidi.IsValid())
+    
+    std::string id = "skibidi";
+    engine.ResourceManager.LoadAsync<Resource_TextFile>(id, true, [](ResourceHandle<Resource_TextFile> file)
     {
-        LOG_MESSAGE("%s", skibidi.Get()->GetContent().data())
-    }
+        if (file)
+        {
+            LOG_MESSAGE("%s", file.Get()->GetContent().data())
+        }
+    });
     
     FFE::Window::InitData initData =
     {
@@ -22,7 +28,6 @@ int main(int argc, char* argv[])
     };
     
     engine.MakeWindow(initData);
-    
     engine.Update();
     engine.Cleanup();
     
