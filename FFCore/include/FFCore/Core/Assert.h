@@ -6,30 +6,43 @@
 #endif
 #include <cstdlib>
 
+#include <cstdarg>
+#include <cstdio>
+
 namespace FF
 {
-    inline void AssertImpl(bool condition, const char* message, const char* file, i32 line)
+    inline void AssertImpl(bool condition, const char* file, i32 line, const char* format, ...)
     {
         if (!condition)
         {
-            char buffer[LOG_TEMPLATE_LENGTH];
-            
-            sprintf_s(
-                buffer,
+            char messageBuffer[LOG_TEMPLATE_LENGTH];
+
+            va_list args;
+            va_start(args, format);
+            vsnprintf(messageBuffer, LOG_TEMPLATE_LENGTH, format, args);
+            va_end(args);
+
+            char finalBuffer[LOG_TEMPLATE_LENGTH];
+
+            snprintf(
+                finalBuffer,
+                LOG_TEMPLATE_LENGTH,
                 "%s\n\n[Assert] [File: %s] [Line: %d]\n",
-                message,
+                messageBuffer,
                 file,
                 line
             );
 
-            LOG_ERROR(message);
+            LOG_ERROR("%s", messageBuffer);
 
+#if defined(_WIN32)
             MessageBoxA(
                 nullptr,
-                buffer,
+                finalBuffer,
                 "Assert Entered",
                 MB_ICONERROR | MB_OK
             );
+#endif
 
             std::abort();
         }
@@ -38,13 +51,15 @@ namespace FF
 
 #ifdef FF_DEBUG
 
-#define ASSERT(condition, message) \
-    {FF::AssertImpl((condition), (message), __FILE__, __LINE__);}
+#define ASSERT(condition, format, ...) \
+FF::AssertImpl((condition), __FILE__, __LINE__, (format), ##__VA_ARGS__);
 
-#define ASSERT_NO_ENTRY() \
-    ASSERT(false, "No entry assert entered")
+#define ASSERT_NO_ENTRY(format, ...) \
+ASSERT(false, format, ##__VA_ARGS__)
 
 #else
-    #   define ASSERT(condition, message) {}
-    #   define ASSERT_NO_ENTRY(message) {}
+
+#define ASSERT(condition, format, ...) ((void)0)
+#define ASSERT_NO_ENTRY(format, ...) ((void)0)
+
 #endif

@@ -66,7 +66,7 @@ namespace FF
                 {
                     if (std::strncmp(hashTable[h], start, hashTableMaxStringLength) != 0)
                     {
-                        ASSERT_NO_ENTRY(false, "HASH_CONFLICT")
+                        ASSERT_NO_ENTRY("HASH_CONFLICT")
                     }
                 }
             }

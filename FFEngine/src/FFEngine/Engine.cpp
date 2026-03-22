@@ -15,9 +15,21 @@ void FFE::Engine::Update()
 
 void FFE::Engine::Cleanup()
 {
+    for (const Window& w : _windows)
+    {
+        glfwDestroyWindow(w.GetWindow());
+    }
+
+    glfwTerminate();
+    
     ResourceManager.Stop();
     ResourceManager.UnloadAll();
     FF::Logger::GetInstance().Stop();
+}
+
+void FFE::Engine::InitGraphicsAPI()
+{
+    _vulkan.InitVulkan();
 }
 
 void FFE::Engine::Init()
